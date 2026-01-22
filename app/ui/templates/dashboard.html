@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Scoring - ERPNext</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="brand-name">Payment Scoring</span>
+            </div>
+            <div class="navbar-actions">
+                <button class="btn-icon" onclick="refreshData()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card stat-card-blue">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-value" id="totalCustomers">-</div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card-green">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Low Risk</div>
+                    <div class="stat-value" id="lowRiskCount">-</div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card-yellow">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Medium Risk</div>
+                    <div class="stat-value" id="mediumRiskCount">-</div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card-red">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">High Risk</div>
+                    <div class="stat-value" id="highRiskCount">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="filterCustomers('all')">All Customers</button>
+                    <button class="tab-btn" onclick="filterCustomers('high')">High Risk</button>
+                    <button class="tab-btn" onclick="filterCustomers('medium')">Medium Risk</button>
+                    <button class="tab-btn" onclick="filterCustomers('low')">Low Risk</button>
+                </div>
+                <div class="card-actions">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search customers..." onkeyup="searchCustomers()">
+                </div>
+            </div>
+
+            <!-- Customers Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Score</th>
+                            <th>Risk Level</th>
+                            <th>Action Required</th>
+                            <th>Overdue</th>
+                            <th>Outstanding</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody">
+                        <tr>
+                            <td colspan="7" class="loading-cell">
+                                <div class="loading-spinner"></div>
+                                <span>Loading customers...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Follow-ups Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Action Items</h2>
+            </div>
+            <div class="followups-grid" id="followupsGrid">
+                <div class="followup-section">
+                    <h3 class="followup-title immediate">Immediate Follow-up Required</h3>
+                    <div class="followup-list" id="immediateFollowups">
+                        <div class="loading-text">Loading...</div>
+                    </div>
+                </div>
+                <div class="followup-section">
+                    <h3 class="followup-title reminder">Friendly Reminder</h3>
+                    <div class="followup-list" id="friendlyReminders">
+                        <div class="loading-text">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Detail Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalCustomerName">Customer Details</h2>
+                <button class="btn-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
