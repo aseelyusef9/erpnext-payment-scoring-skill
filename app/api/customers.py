@@ -3,6 +3,7 @@ Customer API endpoints for payment scoring.
 """
 from fastapi import APIRouter, HTTPException, Query
 from typing import List
+import requests
 from app.models import CustomerScore
 from app.erpnext import ERPNextClient
 from app.services import ScoringService, InsightsService
@@ -12,6 +13,20 @@ router = APIRouter()
 erpnext_client = ERPNextClient()
 scoring_service = ScoringService()
 insights_service = InsightsService()
+
+
+@router.get("/customers")
+async def list_customers(limit: int = Query(default=100, le=500)):
+    """
+    Get list of all customers.
+    
+    Returns list of customers from ERPNext.
+    """
+    try:
+        customers = erpnext_client.list_customers(limit=limit)
+        return customers
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch customers: {str(e)}")
 
 
 @router.get("/customers/payment-scores", response_model=List[CustomerScore])

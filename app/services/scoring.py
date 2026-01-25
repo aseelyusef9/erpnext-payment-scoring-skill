@@ -106,5 +106,6 @@ class ScoringService:
             total_invoices=len(invoices),
             total_paid=0,
             total_outstanding=sum(inv.outstanding_amount for inv in invoices),
-            overdue_count=0
+            overdue_count=0,
+            insights="Insufficient transaction history"
         )
