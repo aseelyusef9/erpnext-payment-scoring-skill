@@ -189,13 +189,16 @@ async function showCustomerDetails(customerId) {
     const modalBody = document.getElementById('modalBody');
     
     modal.classList.add('active');
-    modalBody.innerHTML = '<div class="loading-spinner"></div>';
+    
+    // Find customer in already loaded data
+    const customer = allCustomers.find(c => c.customer_id === customerId);
+    
+    if (!customer) {
+        modalBody.innerHTML = '<div class="error-message">Customer not found</div>';
+        return;
+    }
     
     try {
-        const response = await fetch(`${API_BASE}/customers/${customerId}/score`);
-        if (!response.ok) throw new Error('Failed to fetch customer details');
-        
-        const customer = await response.json();
         
         document.getElementById('modalCustomerName').textContent = customer.customer_name;
         
