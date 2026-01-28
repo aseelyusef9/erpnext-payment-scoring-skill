@@ -26,7 +26,10 @@ jobs:
     
     - name: Create fake API key (required for imports)
       run: |
+        pwd
         echo "sk-ant-mock-key-for-testing" > .anthropickey
+        cat .anthropickey
+        ls -la .anthropickey
     
     - name: Install Playwright (separate step for UI tests)
       run: |
