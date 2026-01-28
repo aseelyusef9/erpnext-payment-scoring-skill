@@ -2,60 +2,39 @@
 Pytest configuration and fixtures.
 """
 import pytest
-import os
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 from datetime import date, timedelta
 
 
-# Mock Claude client BEFORE any imports
-class MockClaudeClient:
-    """Mock Claude AI client for testing."""
+# Mock Claude client globally before any imports
+@pytest.fixture(scope="session", autouse=True)
+def mock_claude_client():
+    """Mock Claude client for all tests."""
     
-    class Messages:
-        class Content:
-            def __init__(self, text):
-                self.text = text
-        
-        class Message:
-            def __init__(self, content_text):
-                self.content = [MockClaudeClient.Messages.Content(content_text)]
-        
-        def create(self, **kwargs):
-            """Return a mock Claude response."""
-            return self.Message('''{
+    class MockContent:
+        def __init__(self, text):
+            self.text = text
+    
+    class MockMessage:
+        def __init__(self):
+            self.content = [MockContent('''{
                 "payment_score": 75,
                 "risk_level": "Medium",
-                "key_factors": [
-                    "Test factor 1",
-                    "Test factor 2"
-                ],
+                "key_factors": ["Factor 1", "Factor 2"],
                 "recommended_action": "Monitor account",
                 "confidence_level": "High"
-            }''')
+            }''')]
     
-    def __init__(self, api_key=None):
-        self.messages = self.Messages()
-
-
-def mock_get_claude_client():
-    """Return mocked Claude client."""
-    return MockClaudeClient()
-
-
-# Patch the get_claude_client function at module level
-import sys
-from unittest.mock import patch
-
-# Apply the mock globally
-original_import = __builtins__.__import__
-
-def mock_import(name, *args, **kwargs):
-    module = original_import(name, *args, **kwargs)
-    if name == 'app.services.claude_client':
-        module.get_claude_client = mock_get_claude_client
-    return module
-
-__builtins__.__import__ = mock_import
+    class MockMessages:
+        def create(self, **kwargs):
+            return MockMessage()
+    
+    class MockClaudeClient:
+        def __init__(self, api_key=None):
+            self.messages = MockMessages()
+    
+    with patch('app.services.claude_client.get_claude_client', return_value=MockClaudeClient()):
+        yield
 
 
 @pytest.fixture
