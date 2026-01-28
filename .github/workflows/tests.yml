@@ -24,6 +24,10 @@ jobs:
         pip install requests anthropic httpx python-dotenv
         pip install pytest pytest-asyncio
     
+    - name: Create fake API key (required for imports)
+      run: |
+        echo "sk-ant-mock-key-for-testing" > .anthropickey
+    
     - name: Install Playwright (separate step for UI tests)
       run: |
         pip install playwright
