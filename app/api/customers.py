@@ -9,15 +9,17 @@ import traceback
 from datetime import date, timedelta
 from app.models import CustomerScore, Customer, Invoice, Payment
 from app.erpnext import ERPNextClient
-from app.services import ScoringService, InsightsService
+from app.services import PaymentAIAnalyzer
 from app.config import settings
 
 
 router = APIRouter()
 
 erpnext_client = ERPNextClient()
-scoring_service = ScoringService()
-insights_service = InsightsService()
+
+# 🤖 AI-powered scoring (required)
+ai_analyzer = PaymentAIAnalyzer()
+print("✓ AI-powered scoring enabled (Claude AI)")
 
 
 def generate_mock_data(customer: Customer) -> Tuple[List[Invoice], List[Payment]]:
@@ -167,9 +169,8 @@ async def get_payment_scores(limit: int = Query(default=100, le=500)):
                     invoices = [Invoice(**inv) for inv in recent_invoices_data]
                     payments = [Payment(**pay) for pay in payments_data]
                 
-                score = scoring_service.calculate_customer_score(customer, invoices, payments)
-                insights = insights_service.generate_insights(score, invoices)
-                score.insights = insights
+                # 🤖 AI-powered risk assessment
+                score = ai_analyzer.analyze_customer(customer, invoices)
                 scores.append(score)
             except Exception as e:
                 # Log error for debugging but continue processing
@@ -214,12 +215,11 @@ async def get_high_risk_customers(limit: int = Query(default=100, le=500)):
                     invoices = [Invoice(**inv) for inv in invoices_data]
                     payments = [Payment(**pay) for pay in payments_data]
                 
-                score = scoring_service.calculate_customer_score(customer, invoices, payments)
+                # 🤖 AI-driven risk assessment
+                score = ai_analyzer.analyze_customer(customer, invoices)
                 
                 # Only include high risk customers (score < 50)
                 if score.score < 50:
-                    insights = insights_service.generate_insights(score, invoices)
-                    score.insights = insights
                     high_risk_scores.append(score)
             except Exception as e:
                 continue
@@ -269,8 +269,8 @@ async def get_customer_followups(limit: int = Query(default=100, le=500)):
                     invoices = [Invoice(**inv) for inv in recent_invoices_data]
                     payments = [Payment(**pay) for pay in payments_data]
                 
-                score = scoring_service.calculate_customer_score(customer, invoices, payments)
-                insights = insights_service.generate_insights(score, invoices)
+                # 🤖 AI determines follow-up actions
+                score = ai_analyzer.analyze_customer(customer, invoices)
                 
                 customer_info = {
                     "customer_id": score.customer_id,
@@ -280,7 +280,7 @@ async def get_customer_followups(limit: int = Query(default=100, le=500)):
                     "action": score.action,
                     "overdue_count": score.overdue_count,
                     "total_outstanding": score.total_outstanding,
-                    "insights": insights
+                    "insights": score.insights  # AI-generated insights
                 }
                 
                 if score.action == "Immediate follow-up":
@@ -339,12 +339,8 @@ async def get_customer_score(customer_id: str):
                 if due_invoices:
                     print(f"Sample due invoice: status={due_invoices[0].status}, outstanding={due_invoices[0].outstanding_amount}")
         
-        # Calculate score
-        score = scoring_service.calculate_customer_score(customer, invoices, payments)
-        
-        # Generate insights
-        insights = insights_service.generate_insights(score, invoices)
-        score.insights = insights
+        # 🤖 AI-powered payment behavior analysis
+        score = ai_analyzer.analyze_customer(customer, invoices)
         
         return score
         

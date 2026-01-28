@@ -9,7 +9,7 @@ from app.config import settings
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not os.getenv("ERPNEXT_API_KEY"),
+    not settings.ERPNEXT_API_KEY,
     reason="ERPNext credentials not configured"
 )
 def test_erpnext_connection():
@@ -25,7 +25,7 @@ def test_erpnext_connection():
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not os.getenv("ERPNEXT_API_KEY"),
+    not settings.ERPNEXT_API_KEY,
     reason="ERPNext credentials not configured"
 )
 def test_get_customer():
@@ -46,7 +46,7 @@ def test_get_customer():
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not os.getenv("ERPNEXT_API_KEY"),
+    not settings.ERPNEXT_API_KEY,
     reason="ERPNext credentials not configured"
 )
 def test_get_customer_invoices():
@@ -66,7 +66,7 @@ def test_get_customer_invoices():
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not os.getenv("ERPNEXT_API_KEY"),
+    not settings.ERPNEXT_API_KEY,
     reason="ERPNext credentials not configured"
 )
 def test_get_customer_payments():

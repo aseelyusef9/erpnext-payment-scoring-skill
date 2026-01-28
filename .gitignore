@@ -4,4 +4,4 @@ compose.yaml
 .venv
 __pycache__/
 *.pyc
-
+.anthropickey

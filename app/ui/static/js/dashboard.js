@@ -76,7 +76,7 @@ function displayCustomers(customers) {
             </td>
             <td>
                 <div class="score-display">
-                    <span class="score-number" style="color: ${getScoreColor(customer.score)}">${customer.score.toFixed(1)}</span>
+                    <span class="score-number" style="color: ${getScoreColor(customer.risk_level)}">${customer.score.toFixed(1)}</span>
                     <div class="score-bar">
                         <div class="score-fill ${getRiskClass(customer.risk_level)}" style="width: ${customer.score}%"></div>
                     </div>
@@ -206,7 +206,7 @@ async function showCustomerDetails(customerId) {
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
                 <div class="detail-section">
                     <div class="detail-label">Payment Score</div>
-                    <div class="detail-value" style="font-size: 36px; font-weight: 700; color: ${getScoreColor(customer.score)}">
+                    <div class="detail-value" style="font-size: 36px; font-weight: 700; color: ${getScoreColor(customer.risk_level)}">
                         ${customer.score.toFixed(1)}
                     </div>
                 </div>
@@ -227,11 +227,11 @@ async function showCustomerDetails(customerId) {
                 </div>
                 <div class="detail-section">
                     <div class="detail-label">Payment Reliability</div>
-                    <div class="detail-value">${customer.payment_reliability.toFixed(1)}%</div>
+                    <div class="detail-value">${Math.round(customer.payment_reliability)}%</div>
                 </div>
                 <div class="detail-section">
                     <div class="detail-label">Avg Payment Delay</div>
-                    <div class="detail-value">${customer.avg_payment_delay.toFixed(1)} days</div>
+                    <div class="detail-value">${Math.round(customer.avg_payment_delay)} days</div>
                 </div>
                 <div class="detail-section">
                     <div class="detail-label">Overdue Invoices</div>
@@ -291,9 +291,9 @@ function getRiskClass(riskLevel) {
     return riskLevel === 'low' ? 'low' : riskLevel === 'medium' ? 'medium' : 'high';
 }
 
-function getScoreColor(score) {
-    if (score >= 80) return 'var(--success-color)';
-    if (score >= 50) return 'var(--warning-color)';
+function getScoreColor(riskLevel) {
+    if (riskLevel === 'low') return 'var(--success-color)';
+    if (riskLevel === 'medium') return 'var(--warning-color)';
     return 'var(--danger-color)';
 }
 
