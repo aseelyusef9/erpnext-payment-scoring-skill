@@ -6,18 +6,12 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 
 
-@pytest.fixture(autouse=True)
-def mock_claude_for_tests():
-    """
-    Automatically mock Claude AI client for all tests.
-    Tests run without real API calls or API key.
-    """
-    # Mock the get_claude_client function
-    with patch("app.services.claude_client.get_claude_client") as mock_get_client:
-        # Create a mock Claude client
+# Patch get_claude_client at module level before any imports
+@pytest.fixture(scope="session", autouse=True)
+def mock_claude_globally():
+    """Mock Claude client globally for all tests."""
+    with patch("app.services.claude_client.get_claude_client") as mock_get:
         mock_client = MagicMock()
-        
-        # Mock the messages.create method to return a fake response
         mock_response = MagicMock()
         mock_response.content = [MagicMock()]
         mock_response.content[0].text = '''{
@@ -32,8 +26,12 @@ def mock_claude_for_tests():
             "predicted_next_payment_date": "2026-02-15",
             "insights": "Customer shows medium risk profile with moderate payment reliability."
         }'''
-        
         mock_client.messages.create.return_value = mock_response
-        mock_get_client.return_value = mock_client
-        
-        yield mock_client
+        mock_get.return_value = mock_client
+        yield
+
+
+@pytest.fixture(autouse=True)
+def mock_anthropic_key(monkeypatch):
+    """Set a fake Anthropic API key for tests."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-key-for-testing")
