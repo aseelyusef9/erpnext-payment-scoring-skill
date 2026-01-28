@@ -1,3 +1,0 @@
-# This file is deprecated - CI now uses requirements.txt directly
-# with Playwright system dependencies installed in the workflow
-# You can delete this file
