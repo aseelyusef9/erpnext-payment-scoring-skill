@@ -118,7 +118,7 @@ def generate_mock_data(customer: Customer) -> Tuple[List[Invoice], List[Payment]
 
 
 @router.get("/customers")
-async def list_customers(limit: int = Query(default=100, le=500)):
+async def list_customers(limit: int = Query(default=100, ge=1, le=500)):
     """
     Get list of all customers.
     
@@ -132,7 +132,7 @@ async def list_customers(limit: int = Query(default=100, le=500)):
 
 
 @router.get("/customers/payment-scores", response_model=List[CustomerScore])
-async def get_payment_scores(limit: int = Query(default=100, le=500)):
+async def get_payment_scores(limit: int = Query(default=100, ge=1, le=500)):
     """
     Get payment scores for all customers.
     
@@ -191,7 +191,7 @@ async def get_payment_scores(limit: int = Query(default=100, le=500)):
 
 
 @router.get("/customers/high-risk", response_model=List[CustomerScore])
-async def get_high_risk_customers(limit: int = Query(default=100, le=500)):
+async def get_high_risk_customers(limit: int = Query(default=100, ge=1, le=500)):
     """
     Get customers with high risk (score < 50).
     
@@ -233,7 +233,7 @@ async def get_high_risk_customers(limit: int = Query(default=100, le=500)):
 
 
 @router.get("/customers/followups")
-async def get_customer_followups(limit: int = Query(default=100, le=500)):
+async def get_customer_followups(limit: int = Query(default=100, ge=1, le=500)):
     """
     Get list of customers requiring follow-up actions.
     
