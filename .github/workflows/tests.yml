@@ -34,20 +34,28 @@ jobs:
         playwright install chromium --with-deps
       continue-on-error: true
     
-    - name: Run unit tests
-      run: |
-        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
-        pytest tests/unit/ -v --tb=short
-      env:
-        CI: true
-    
+
     - name: Run API tests (with mocked AI)
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
-        pytest tests/api/ -v --tb=short
+        if [ -d tests/api ]; then pytest tests/api/ -v --tb=short; else echo "No API tests directory, skipping."; fi
       env:
         CI: true
         USE_MOCK_DATA: "true"
+
+    - name: Run service tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        if [ -d tests/services ]; then pytest tests/services/ -v --tb=short; else echo "No services tests directory, skipping."; fi
+      env:
+        CI: true
+
+    - name: Run all tests (full coverage)
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        pytest tests/ -v --tb=short
+      env:
+        CI: true
     
     - name: Skip integration tests (need ERPNext)
       run: |
@@ -58,6 +66,5 @@ jobs:
     - name: Test summary
       if: always()
       run: |
-        echo "✅ Unit tests completed"
         echo "✅ API tests completed"
         echo "⏭️ Integration tests skipped (run locally)"
