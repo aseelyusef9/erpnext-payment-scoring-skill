@@ -78,6 +78,95 @@ class TestCustomerAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "healthy")
 
+    def test_payment_scores_happy(self):
+        """Test /customers/payment-scores happy path."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_client.list_customers.return_value = [
+                {"name": "CUST-001", "customer_name": "Test Customer 1", "id": "CUST-001"}
+            ]
+            response = self.client.get("/api/v1/customers/payment-scores")
+            self.assertEqual(response.status_code, 200)
+            self.assertIsInstance(response.json(), list)
+
+    def test_payment_scores_bad_limit(self):
+        """Test /customers/payment-scores with invalid limit."""
+        response = self.client.get("/api/v1/customers/payment-scores?limit=0")
+        self.assertEqual(response.status_code, 422)
+
+    def test_high_risk_customers_happy(self):
+        """Test /customers/high-risk happy path."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_client.list_customers.return_value = [
+                {"name": "CUST-001", "customer_name": "Test Customer 1", "id": "CUST-001"}
+            ]
+            response = self.client.get("/api/v1/customers/high-risk")
+            self.assertEqual(response.status_code, 200)
+            self.assertIsInstance(response.json(), list)
+
+    def test_high_risk_customers_bad_limit(self):
+        """Test /customers/high-risk with invalid limit."""
+        response = self.client.get("/api/v1/customers/high-risk?limit=-1")
+        self.assertEqual(response.status_code, 422)
+
+    def test_followups_happy(self):
+        """Test /customers/followups happy path."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_client.list_customers.return_value = [
+                {"name": "CUST-001", "customer_name": "Test Customer 1", "id": "CUST-001"}
+            ]
+            response = self.client.get("/api/v1/customers/followups")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("immediate_followup", response.json())
+
+    def test_followups_bad_limit(self):
+        """Test /customers/followups with invalid limit."""
+        response = self.client.get("/api/v1/customers/followups?limit=0")
+        self.assertEqual(response.status_code, 422)
+
+    def test_get_customer_score_happy(self):
+        """Test /customers/{customer_id}/score happy path."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_client.get_customer.return_value = {"data": {"name": "CUST-001", "customer_name": "Test Customer", "id": "CUST-001"}}
+            mock_client.get_customer_invoices.return_value = []
+            mock_client.get_customer_payments.return_value = []
+            response = self.client.get("/api/v1/customers/CUST-001/score")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("score", response.json())
+
+    def test_get_customer_score_not_found(self):
+        """Test /customers/{customer_id}/score not found."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 404
+            mock_client.get_customer.side_effect = requests.exceptions.HTTPError(response=mock_response)
+            response = self.client.get("/api/v1/customers/INVALID-ID/score")
+            self.assertEqual(response.status_code, 404)
+
+    def test_get_customer_score_server_error(self):
+        """Test /customers/{customer_id}/score server error."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_client.get_customer.side_effect = Exception("Server error")
+            response = self.client.get("/api/v1/customers/CUST-ERR/score")
+            self.assertEqual(response.status_code, 500)
+
+    def test_get_customer_insights_happy(self):
+        """Test /customers/{customer_id}/insights happy path."""
+        with patch("app.api.customers.erpnext_client") as mock_client, \
+             patch("app.api.customers.insights_service", create=True) as mock_insights:
+            mock_client.get_customer.return_value = {"data": {"name": "CUST-001", "customer_name": "Test Customer", "id": "CUST-001"}}
+            mock_client.get_customer_invoices.return_value = []
+            mock_insights.generate_trend_analysis.return_value = {"trend": "stable"}
+            response = self.client.get("/api/v1/customers/CUST-001/insights")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("trend_analysis", response.json())
+
+    def test_get_customer_insights_not_found(self):
+        """Test /customers/{customer_id}/insights not found."""
+        with patch("app.api.customers.erpnext_client") as mock_client:
+            mock_client.get_customer.side_effect = Exception("Not found")
+            response = self.client.get("/api/v1/customers/INVALID-ID/insights")
+            self.assertEqual(response.status_code, 500)
+
 
 class TestCustomerAPIBadInputs(unittest.TestCase):
     """Test cases for customer API bad input validation."""
