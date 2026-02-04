@@ -10,12 +10,12 @@ on:
       - main
 
 jobs:
-  playwright-matrix-tests:
+  playwright-component-tests:
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
-        browser: [chrome, firefox]
+        browser: [chromium, firefox]
         resolution: 
           - { name: 'desktop', width: 1920, height: 1080 }
           - { name: 'tablet', width: 768, height: 1024 }
@@ -33,14 +33,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.13'
         
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install fastapi uvicorn[standard] pydantic pydantic-settings
         pip install requests anthropic httpx python-dotenv
-        pip install pytest pytest-asyncio playwright
+        pip install pytest playwright
         
     - name: Install Playwright browsers
       run: |
@@ -50,39 +50,29 @@ jobs:
       run: |
         echo "sk-ant-mock-key-for-testing" > .anthropickey
         
-    - name: Start application server
+    - name: Skip integration tests (need ERPNext)
+      id: skip_integration
       run: |
-        python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
-        sleep 5  # Wait for server to start
-      env:
-        CI: true
-        USE_MOCK_DATA: "false"
-        PYTHONPATH: ${{ github.workspace }}
+        echo "Skipping integration tests - CI runs component tests only"
         
-    - name: Run Playwright tests
+    - name: Run component tests with mock data
       env:
         HEADLESS: true
         BROWSER: ${{ matrix.browser }}
         SCREEN_WIDTH: ${{ matrix.resolution.width }}
         SCREEN_HEIGHT: ${{ matrix.resolution.height }}
-        APP_URL: https://yolande-phalangeal-kristan.ngrok-free.dev
-        TEST_NAME: ${{ matrix.browser }}-${{ matrix.resolution.name }}
         CI: true
-        USE_MOCK_DATA: "false"
-        UI_BASE_URL: https://yolande-phalangeal-kristan.ngrok-free.dev
-        UI_FORCE_AI: "true"
+        USE_MOCK_DATA: "True"
+        SKIP_AI_ANALYSIS: "True"
+        UI_BASE_URL: http://localhost:8000
+        UI_FORCE_AI: "False"
         UI_SLOW_MO_MS: "0"
-        UI_KEEP_OPEN: "false"
         PYTHONPATH: ${{ github.workspace }}
       run: |
-        pytest tests/ui_testing/e2e/ -v --tb=short -k "not integration"
+        pytest tests/ui_testing/component/ -v --tb=short
       continue-on-error: false
         
-    - name: Upload test artifacts
+    - name: Test summary
       if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ matrix.browser }}-${{ matrix.resolution.name }}
-        path: tests/ui_testing/test-results/
-        retention-days: 7
-      continue-on-error: true
+      run: |
+        echo "✅ Component tests completed for ${{ matrix.browser }} - ${{ matrix.resolution.name }}"
