@@ -55,7 +55,14 @@ class DashboardPage(BasePage):
 
     def filter_high_risk(self):
         # Click the High Risk tab button
-        self.page.get_by_role("button", name="High Risk").click()
+        high_risk_btn = self.page.get_by_role("button", name="High Risk")
+        # Scroll into view and wait for button to be ready
+        try:
+            high_risk_btn.scroll_into_view_if_needed(timeout=10000)
+        except Exception:
+            pass
+        # Click with increased timeout for slow CI environments
+        high_risk_btn.click(timeout=60000)
         
         # Wait for the API call to complete and data to render
         # Increased timeout for real ERPNext + AI processing (can take 90+ seconds)
