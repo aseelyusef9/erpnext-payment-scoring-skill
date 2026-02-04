@@ -48,10 +48,6 @@ jobs:
       run: |
         playwright install --with-deps ${{ matrix.browser }}
         
-    - name: Create fake API key (required for imports)
-      run: |
-        echo "sk-ant-mock-key-for-testing" > .anthropickey
-        
     - name: Run E2E tests against ngrok URL
       env:
         HEADLESS: true
