@@ -19,6 +19,7 @@ class PaymentAIAnalyzer:
         """Initialize the AI analyzer."""
         self.client = get_claude_client()
         self.model = MODEL_NAME
+        self.skip_ai = os.getenv("SKIP_AI_ANALYSIS", "False").lower() == "true"
         
         # Load analysis prompt from file
         prompt_file = os.path.join(
@@ -43,6 +44,10 @@ class PaymentAIAnalyzer:
         Returns:
             CustomerScore with AI-generated insights
         """
+        # Skip AI analysis for fast component tests
+        if self.skip_ai:
+            return self._fast_fallback_score(customer, invoices)
+        
         # Prepare aggregated data for Claude
         customer_data = self._prepare_customer_data(customer, invoices)
         
@@ -192,6 +197,49 @@ OUTPUT FORMAT (JSON ONLY)
             total_outstanding=round(total_outstanding, 2),
             overdue_count=overdue_count,
             insights=ai_result.get("insights", "AI analysis completed.")
+        )
+    
+    def _fast_fallback_score(
+        self,
+        customer: Customer,
+        invoices: List[Invoice]
+    ) -> CustomerScore:
+        """Fast scoring without AI for component tests."""
+        total_invoices = len(invoices)
+        total_paid = sum(1 for inv in invoices if inv.is_paid())
+        total_outstanding = sum(inv.outstanding_amount for inv in invoices)
+        overdue_count = sum(
+            1 for inv in invoices 
+            if inv.calculate_days_overdue() > 0 and not inv.is_paid()
+        )
+        
+        # Simple rule-based scoring for fast tests
+        if overdue_count == 0:
+            score = 85
+            risk_level = "low"
+            action = "None"
+        elif overdue_count <= 2:
+            score = 60
+            risk_level = "medium"
+            action = "Friendly reminder"
+        else:
+            score = 30
+            risk_level = "high"
+            action = "Immediate follow-up"
+        
+        return CustomerScore(
+            customer_id=customer.id,
+            customer_name=customer.customer_name,
+            score=score,
+            risk_level=risk_level,
+            action=action,
+            avg_payment_delay=0.0,
+            payment_reliability=round((total_paid / total_invoices * 100) if total_invoices > 0 else 0.0, 2),
+            total_invoices=total_invoices,
+            total_paid=total_paid,
+            total_outstanding=round(total_outstanding, 2),
+            overdue_count=overdue_count,
+            insights="Fast scoring for component tests (AI disabled)."
         )
     
     def _fallback_score(

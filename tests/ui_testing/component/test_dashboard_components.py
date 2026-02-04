@@ -1,6 +1,5 @@
 import unittest
 import os
-from unittest.mock import patch, MagicMock
 from tests.ui_testing.conftest import UITestBase
 from tests.ui_testing.pages.dashboard_page import DashboardPage
 
