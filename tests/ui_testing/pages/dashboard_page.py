@@ -49,7 +49,8 @@ class DashboardPage(BasePage):
     def verify_page_loaded(self):
         """Verify the dashboard is loaded correctly."""
         # Increased timeout for CI environments with slow page loads
-        expect(self.page.locator(".brand-name")).to_be_visible(timeout=30000)
+        # Use navbar which is always visible instead of brand-name which may be hidden on some resolutions
+        expect(self.page.locator(".navbar")).to_be_visible(timeout=30000)
     
     def is_loaded(self):
         self.verify_page_loaded()
