@@ -15,6 +15,7 @@ jobs:
     environment: test
     
     strategy:
+      max-parallel: 1  # Run tests one at a time to avoid overwhelming local server
       matrix:
         browser: [chromium, firefox]
         resolution: 
