@@ -21,6 +21,7 @@ jobs:
         resolution: 
           - { name: 'desktop', width: 1920, height: 1080 }
           - { name: 'tablet', width: 768, height: 1024 }
+          - { name: 'mobile', width: 375, height: 667 }
       fail-fast: false  # Continue other jobs even if one fails
     
     name: Test ${{ matrix.browser }} - ${{ matrix.resolution.name }}
