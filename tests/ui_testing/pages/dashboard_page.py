@@ -41,7 +41,8 @@ class DashboardPage(BasePage):
         
         try:
             # Wait for data rows to render (View Details button present)
-            self.page.wait_for_selector("table tbody tr button:has-text('View Details')", timeout=15000)
+            # Increased timeout for real ERPNext + AI in CI (can take 60+ seconds)
+            self.page.wait_for_selector("table tbody tr button:has-text('View Details')", timeout=120000)
         except Exception:
             pass
 
