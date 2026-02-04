@@ -62,16 +62,10 @@ jobs:
         UI_FORCE_AI: "true"
         UI_SLOW_MO_MS: "0"
         PYTHONPATH: ${{ github.workspace }}
-        # ERPNext credentials (from GitHub Secrets)
-        ERPNEXT_URL: ${{ secrets.ERPNEXT_URL }}
+        # API keys needed only for test framework initialization
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         ERPNEXT_API_KEY: ${{ secrets.ERPNEXT_API_KEY }}
         ERPNEXT_API_SECRET: ${{ secrets.ERPNEXT_API_SECRET }}
-        # Claude AI credentials (from GitHub Secrets)
-        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        # AI configuration
-        AI_TOPK: "15"
-        AI_TIMEOUT_SECONDS: "8"
-        AI_MAX_CONCURRENCY: "6"
       run: |
         pytest tests/ui_testing/e2e/ -v --tb=short
       continue-on-error: false
