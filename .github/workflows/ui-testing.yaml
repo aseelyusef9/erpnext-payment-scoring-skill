@@ -19,7 +19,8 @@ jobs:
       matrix:
         browser: [chromium, firefox]  # Test both browsers
         resolution: 
-          - { name: 'desktop', width: 1920, height: 1080 }  # Only desktop resolution
+          - { name: 'desktop', width: 1920, height: 1080 }
+          - { name: 'tablet', width: 768, height: 1024 }
       fail-fast: false  # Continue other jobs even if one fails
     
     name: Test ${{ matrix.browser }} - ${{ matrix.resolution.name }}
