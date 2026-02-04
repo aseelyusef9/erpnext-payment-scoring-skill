@@ -58,7 +58,7 @@ class DashboardPage(BasePage):
         self.page.get_by_role("button", name="High Risk").click()
         
         # Wait for the API call to complete and data to render
-        # First, wait for any loading spinners to disappear or actual data to appear
+        # Increased timeout for real ERPNext + AI processing (can take 90+ seconds)
         try:
             # Wait for the table to have actual data rows (not just loading message)
             # This will wait until we see a View Details button or a "No customers found" message
@@ -69,14 +69,14 @@ class DashboardPage(BasePage):
                     const noCustMsg = document.body.innerText.includes("No customers found");
                     return buttonsWithText.length > 0 || noCustMsg;
                 }""",
-                timeout=30000
+                timeout=120000  # Increased to 2 minutes for CI with real data
             )
         except Exception as e:
             print(f"Warning: timeout waiting for high-risk filter results: {e}")
         
         try:
             # Give a bit more time for rendering
-            self.page.wait_for_load_state("networkidle", timeout=5000)
+            self.page.wait_for_load_state("networkidle", timeout=10000)
         except Exception:
             pass
 
