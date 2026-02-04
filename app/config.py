@@ -28,9 +28,16 @@ class Settings(BaseSettings):
     # API Configuration
     API_V1_PREFIX: str = "/api/v1"
     
+    # Claude AI Configuration
+    ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+    AI_TOPK: int = int(os.getenv("AI_TOPK", "5"))
+    AI_TIMEOUT_SECONDS: int = int(os.getenv("AI_TIMEOUT_SECONDS", "10"))
+    AI_MAX_CONCURRENCY: int = int(os.getenv("AI_MAX_CONCURRENCY", "6"))
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra fields from .env
 
 
 settings = Settings()

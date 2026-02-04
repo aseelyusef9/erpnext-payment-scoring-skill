@@ -105,13 +105,34 @@ function filterCustomers(filter) {
     });
     event.target.classList.add('active');
     
-    // Filter data
-    let filtered = allCustomers;
-    if (filter !== 'all') {
-        filtered = allCustomers.filter(c => c.risk_level === filter);
+    // If filtering by 'high', call the dedicated high-risk endpoint for better performance and accuracy
+    if (filter === 'high') {
+        loadHighRiskCustomers();
+    } else {
+        // Filter client-side from already loaded data
+        let filtered = allCustomers;
+        if (filter !== 'all') {
+            filtered = allCustomers.filter(c => c.risk_level === filter);
+        }
+        
+        displayCustomers(filtered);
     }
-    
-    displayCustomers(filtered);
+}
+
+// Load high-risk customers from dedicated endpoint
+async function loadHighRiskCustomers() {
+    try {
+        const response = await fetch(`${API_BASE}/customers/high-risk`);
+        if (!response.ok) throw new Error('Failed to fetch high-risk customers');
+        
+        const highRiskCustomers = await response.json();
+        displayCustomers(highRiskCustomers);
+    } catch (error) {
+        console.error('Error loading high-risk customers:', error);
+        // Fallback to client-side filtering
+        const filtered = allCustomers.filter(c => c.risk_level === 'high');
+        displayCustomers(filtered);
+    }
 }
 
 // Search customers

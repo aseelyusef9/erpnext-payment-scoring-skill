@@ -19,7 +19,7 @@ erpnext_client = ERPNextClient()
 
 # 🤖 AI-powered scoring (required)
 ai_analyzer = PaymentAIAnalyzer()
-print("✓ AI-powered scoring enabled (Claude AI)")
+print("[OK] AI-powered scoring enabled (Claude AI)")
 
 
 def generate_mock_data(customer: Customer) -> Tuple[List[Invoice], List[Payment]]:
