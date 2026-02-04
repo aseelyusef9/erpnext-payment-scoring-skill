@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  playwright-component-tests:
+  playwright-e2e-tests:
     runs-on: ubuntu-latest
     
     strategy:
@@ -50,29 +50,23 @@ jobs:
       run: |
         echo "sk-ant-mock-key-for-testing" > .anthropickey
         
-    - name: Skip integration tests (need ERPNext)
-      id: skip_integration
-      run: |
-        echo "Skipping integration tests - CI runs component tests only"
-        
-    - name: Run component tests with mock data
+    - name: Run E2E tests against ngrok URL
       env:
         HEADLESS: true
         BROWSER: ${{ matrix.browser }}
         SCREEN_WIDTH: ${{ matrix.resolution.width }}
         SCREEN_HEIGHT: ${{ matrix.resolution.height }}
         CI: true
-        USE_MOCK_DATA: "True"
-        SKIP_AI_ANALYSIS: "True"
-        UI_BASE_URL: http://localhost:8000
-        UI_FORCE_AI: "False"
+        UI_BASE_URL: https://yolande-phalangeal-kristan.ngrok-free.dev
+        UI_SKIP_SERVER: "true"
+        UI_FORCE_AI: "true"
         UI_SLOW_MO_MS: "0"
         PYTHONPATH: ${{ github.workspace }}
       run: |
-        pytest tests/ui_testing/component/ -v --tb=short
+        pytest tests/ui_testing/e2e/ -v --tb=short
       continue-on-error: false
         
     - name: Test summary
       if: always()
       run: |
-        echo "✅ Component tests completed for ${{ matrix.browser }} - ${{ matrix.resolution.name }}"
+        echo "✅ E2E tests completed for ${{ matrix.browser }} - ${{ matrix.resolution.name }}"
