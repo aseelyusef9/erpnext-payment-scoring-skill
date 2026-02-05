@@ -96,41 +96,53 @@ function displayCustomers(customers) {
 }
 
 // Filter customers
-function filterCustomers(filter) {
+function filterCustomers(filter, event) {
     currentFilter = filter;
     
     // Update active tab
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
-    
-    // If filtering by 'high', call the dedicated high-risk endpoint for better performance and accuracy
-    if (filter === 'high') {
-        loadHighRiskCustomers();
-    } else {
-        // Filter client-side from already loaded data
-        let filtered = allCustomers;
-        if (filter !== 'all') {
-            filtered = allCustomers.filter(c => c.risk_level === filter);
-        }
-        
-        displayCustomers(filtered);
+    if (event && event.target) {
+        event.target.classList.add('active');
     }
+    
+    console.log('Filtering by:', filter, 'Total customers:', allCustomers.length);
+    
+    // Filter client-side from already loaded data
+    let filtered = allCustomers;
+    if (filter !== 'all') {
+        filtered = allCustomers.filter(c => c.risk_level === filter);
+    }
+    
+    console.log('Filtered customers:', filtered.length);
+    displayCustomers(filtered);
 }
 
 // Load high-risk customers from dedicated endpoint
 async function loadHighRiskCustomers() {
+    const tbody = document.getElementById('customersTableBody');
+    
+    // Show loading state
+    tbody.innerHTML = `
+        <tr><td colspan="7" class="loading-cell">
+            <div class="loading-spinner"></div>
+            <span>Loading high-risk customers...</span>
+        </td></tr>
+    `;
+    
     try {
         const response = await fetch(`${API_BASE}/customers/high-risk`);
         if (!response.ok) throw new Error('Failed to fetch high-risk customers');
         
         const highRiskCustomers = await response.json();
+        console.log('High-risk customers loaded:', highRiskCustomers.length);
         displayCustomers(highRiskCustomers);
     } catch (error) {
         console.error('Error loading high-risk customers:', error);
         // Fallback to client-side filtering
         const filtered = allCustomers.filter(c => c.risk_level === 'high');
+        console.log('Fallback to client-side filtering:', filtered.length);
         displayCustomers(filtered);
     }
 }
@@ -138,6 +150,12 @@ async function loadHighRiskCustomers() {
 // Search customers
 function searchCustomers() {
     const query = document.getElementById('searchInput').value.toLowerCase();
+    
+    // If currently on high-risk filter and no search query, just reload the high-risk customers
+    if (currentFilter === 'high' && !query) {
+        loadHighRiskCustomers();
+        return;
+    }
     
     let filtered = currentFilter === 'all' 
         ? allCustomers 
