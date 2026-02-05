@@ -43,7 +43,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install fastapi uvicorn[standard] pydantic pydantic-settings
         pip install requests anthropic httpx python-dotenv
-        pip install pytest playwright allure-pytest
+        pip install pytest pytest-cov playwright allure-pytest
         
     - name: Install Playwright browsers
       run: |
