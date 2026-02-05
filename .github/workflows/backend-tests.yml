@@ -31,7 +31,7 @@ jobs:
     - name: Run Backend/Service tests
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
-        pytest tests/BACKEND/ -v --tb=short
+        pytest tests/api/ tests/services/ tests/integration/ -v --tb=short
       env:
         CI: true
         USE_MOCK_DATA: "false"
