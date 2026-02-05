@@ -193,17 +193,12 @@ class TestPaymentAIAnalyzer(unittest.TestCase):
         self.assertEqual(score.overdue_count, 3)
 
 
-@unittest.skip("Integration tests - require real API key and costs money")
 class TestPaymentAIAnalyzerIntegration(unittest.TestCase):
     """
     Integration tests that call the real Claude API.
     
-    These tests are skipped by default because they:
-    - Require real API keys
-    - Cost money to run
-    - Should be run manually during development
-    
-    To run: Remove the @unittest.skip decorator
+    These tests run automatically when ANTHROPIC_API_KEY is configured.
+    They use real Claude AI API calls to validate end-to-end functionality.
     """
     
     def setUp(self):
