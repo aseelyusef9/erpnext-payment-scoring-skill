@@ -8,6 +8,7 @@ Since we can't mock Claude API in unit tests, we test:
 3. Fallback behavior
 4. Error handling
 """
+import os
 import unittest
 import sys
 from pathlib import Path
@@ -193,6 +194,10 @@ class TestPaymentAIAnalyzer(unittest.TestCase):
         self.assertEqual(score.overdue_count, 3)
 
 
+@unittest.skipIf(
+    not os.getenv('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY').startswith('sk-ant-mock'),
+    "Real Claude AI API key not configured"
+)
 class TestPaymentAIAnalyzerIntegration(unittest.TestCase):
     """
     Integration tests that call the real Claude API.
