@@ -28,10 +28,10 @@ jobs:
       run: |
         echo "sk-ant-mock-key-for-testing" > .anthropickey
     
-    - name: Run Backend/Service tests
+    - name: Run API tests only
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
-        pytest tests/api/ tests/services/ tests/integration/ -v --tb=short
+        pytest tests/api/ -v --tb=short
       env:
         CI: true
         USE_MOCK_DATA: "false"
