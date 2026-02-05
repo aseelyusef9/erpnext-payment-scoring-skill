@@ -11,8 +11,8 @@ This document outlines the UI testing strategy for the Payment Scoring Dashboard
 - **Dashboard UI Components**: Tables, filters, search, cards
 - **Customer Details Page**: Score display, invoice list, AI insights
 - **User Workflows**: Manager reviewing high-risk customers
-- **Browser Compatibility**: Chromium, Firefox (WebKit planned)
-- **Responsive Design**: Desktop, Tablet, Mobile resolutions
+- **Browser Compatibility**: Chromium only
+- **Responsive Design**: Desktop resolution (1920x1080) only
 - **Visual Elements**: Buttons, icons, loading states
 
 ### Out of Scope
@@ -224,59 +224,49 @@ HEADLESS=false python tests/ui_testing/e2e/test_manager_high_risk_flow.py
 
 ### Currently Tested Browsers
 - ✅ **Chromium** (Chrome, Edge, Brave) - Default and fully tested
-- ✅ **Firefox** - Tested in CI/CD pipeline (see `.github/workflows/ui-testing.yaml`)
 
 ### Planned Support
-- ⏳ **WebKit** (Safari) - BrowserFactory supports it, but not in CI matrix yet
+- ⏳ **Firefox** - BrowserFactory supports it, but not in CI matrix
+- ⏳ **WebKit** (Safari) - BrowserFactory supports it, but not in CI matrix
 
 ### Configuration
 ```bash
 # Run on Chromium (default)
 python tests/ui_testing/component/test_dashboard_components.py
-
-# Run on Firefox
-BROWSER=firefox python tests/ui_testing/component/test_dashboard_components.py
-
 ```
 
 ### CI/CD Browser Matrix
-GitHub Actions workflow tests both browsers:
-- Chromium + 3 resolutions (desktop, tablet, mobile)
-- Firefox + 3 resolutions (desktop, tablet, mobile)
+GitHub Actions workflow tests:
+- Chromium desktop only (1920x1080)
 
 ---
 
 ## Viewport Testing
 
 ### Tested Resolutions (CI/CD)
-- ✅ **Desktop**: 1920x1080 (default)
-- ✅ **Tablet**: 768x1024
-- ✅ **Mobile**: 375x667
+- ✅ **Desktop**: 1920x1080 (default and only tested resolution)
 
-### Additional Supported Resolutions
+### Additional Supported Resolutions (Not in CI)
+- **Tablet**: 768x1024 (BrowserFactory supports it)
+- **Mobile**: 375x667 (BrowserFactory supports it)
 - **Laptop**: 1366x768 (custom)
 - **Custom**: Any width/height via environment variables
 
 ### Configuration
 ```bash
-# Test on specific resolution
+# Test on desktop (default)
+python tests/ui_testing/component/
+
+# Test on other resolutions (local only, not in CI)
 SCREEN_WIDTH=1366 SCREEN_HEIGHT=768 python tests/ui_testing/component/
-
-# Test on tablet (CI resolution)
-SCREEN_WIDTH=768 SCREEN_HEIGHT=1024 python tests/ui_testing/component/
-
-# Test on mobile (CI resolution)
-SCREEN_WIDTH=375 SCREEN_HEIGHT=667 python tests/ui_testing/component/
 ```
 
 ### CI/CD Viewport Matrix
-GitHub Actions tests multiple resolutions:
+GitHub Actions tests only desktop:
 ```yaml
 matrix:
   resolution:
     - { name: 'desktop', width: 1920, height: 1080 }
-    - { name: 'tablet', width: 768, height: 1024 }
-    - { name: 'mobile', width: 375, height: 667 }
 ```
 
 ---
@@ -327,8 +317,7 @@ Playwright can record test execution (TODO: implement)
 - ✅ E2E tests run in < 20 minutes
 - ✅ Tests pass consistently (> 95% success rate)
 - ✅ No flaky tests
-- ✅ Tests work across Chromium and Firefox
-- ✅ Tests work across desktop, tablet, and mobile viewports
+- ✅ Tests work on Chromium desktop (1920x1080)
 
 ---
 
@@ -377,6 +366,8 @@ Playwright can record test execution (TODO: implement)
 - [ ] Video recording for E2E tests
 - [ ] Parallel test execution (locally)
 - [ ] Accessibility testing (ARIA labels, keyboard nav)
+- [ ] Firefox browser in CI pipeline
+- [ ] Tablet and mobile viewport testing
 - [ ] WebKit/Safari in CI pipeline
 
 ### Medium Priority

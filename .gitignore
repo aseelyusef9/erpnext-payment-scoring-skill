@@ -5,3 +5,14 @@ compose.yaml
 __pycache__/
 *.pyc
 .anthropickey
+
+# Test coverage
+.coverage
+htmlcov/
+coverage.xml
+.pytest_cache/
+
+# Allure reports
+allure-results/
+allure-report/
+allure-history/

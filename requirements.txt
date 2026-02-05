@@ -25,3 +25,5 @@ mypy==1.8.0
 
 # Browser Automation
 playwright==1.41.0
+
+allure-pytest

@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: write  # Required for deploying to GitHub Pages
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,7 +25,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install fastapi uvicorn[standard] pydantic pydantic-settings
         pip install requests anthropic httpx python-dotenv
-        pip install pytest pytest-asyncio pytest-cov
+        pip install pytest pytest-asyncio pytest-cov allure-pytest
     
     - name: Create fake API key (required for imports)
       run: |
@@ -31,7 +34,7 @@ jobs:
     - name: Run API tests only
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
-        pytest tests/api/ -v --tb=short --cov=app --cov-report=xml --cov-report=term
+        pytest tests/api/ -v --tb=short --cov=app --cov-report=xml --cov-report=term --alluredir=allure-results
       env:
         CI: true
         USE_MOCK_DATA: "false"
@@ -39,10 +42,28 @@ jobs:
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
-        token: ${{ secrets.CODECOV_TOKEN }} 
+        token: ${{ secrets.CODECOV_TOKEN }}
+    
+    - name: Generate Allure Report
+      if: always()
+      uses: simple-elf/allure-report-action@master
+      with:
+        allure_results: allure-results
+        allure_report: allure-report
+        gh_pages: gh-pages
+        allure_history: allure-history
+    
+    - name: Deploy Allure Report to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: allure-history
           
     - name: Test summary
       if: always()
       run: |
         echo "✅ Backend tests completed"
         echo "✓ Backend test suite finished"
+        echo "📊 Allure report available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
