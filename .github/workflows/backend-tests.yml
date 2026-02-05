@@ -35,7 +35,12 @@ jobs:
       env:
         CI: true
         USE_MOCK_DATA: "false"
-    
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} 
+          
     - name: Test summary
       if: always()
       run: |

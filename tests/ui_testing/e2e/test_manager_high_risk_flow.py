@@ -1,9 +1,15 @@
 """E2E test for manager high-risk flow."""
 
 import os
+import sys
 import time
 import requests
+from pathlib import Path
 from dotenv import load_dotenv
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from tests.ui_testing.conftest import UITestBase
 from tests.ui_testing.pages.dashboard_page import DashboardPage

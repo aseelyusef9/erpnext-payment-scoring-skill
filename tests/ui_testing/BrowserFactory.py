@@ -40,9 +40,14 @@ class BrowserFactory:
             self.browser = self.playwright.chromium.launch(headless=self.headless, slow_mo=self.slow_mo)
         
         # Create context with specified viewport
-        self.context = self.browser.new_context(
-            viewport={'width': self.screen_width, 'height': self.screen_height}
-        )
+        context_options = {'viewport': {'width': self.screen_width, 'height': self.screen_height}}
+        
+        # If not headless, maximize the window to fit screen
+        if not self.headless:
+            context_options['viewport'] = None  # Use actual window size
+            context_options['no_viewport'] = True
+        
+        self.context = self.browser.new_context(**context_options)
         
         # Create and return page
         self.page = self.context.new_page()

@@ -4,7 +4,12 @@ import time
 import requests
 import unittest
 import sys
+from pathlib import Path
 from dotenv import load_dotenv
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 # Import BrowserFactory for test base class
 from tests.ui_testing.BrowserFactory import BrowserFactory

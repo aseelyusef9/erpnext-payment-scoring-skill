@@ -1,5 +1,12 @@
 import unittest
 import os
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 from tests.ui_testing.conftest import UITestBase
 from tests.ui_testing.pages.dashboard_page import DashboardPage
 
@@ -14,6 +21,12 @@ class TestDashboardComponents(UITestBase):
         os.environ["USE_MOCK_DATA"] = "True"
         os.environ["SKIP_AI_ANALYSIS"] = "True"  # Skip Claude AI for fast tests
         os.environ["UI_FORCE_AI"] = "False"
+        
+        # Make browser visible and slow down actions to see what's happening
+        os.environ["HEADLESS"] = "false"
+        os.environ["UI_SLOW_MO_MS"] = "200"  # 200ms delay - fast but still visible
+        os.environ["SCREEN_WIDTH"] = "1366"  # Adjust to your screen width
+        os.environ["SCREEN_HEIGHT"] = "768"  # Adjust to your screen height
         
         # Force server restart by stopping any running server first
         # This ensures the server picks up the new environment variables
@@ -55,3 +68,7 @@ class TestDashboardComponents(UITestBase):
     def test_view_details_button_exists(self):
         button = self.page.get_by_role("button", name="View Details").first
         self.assertTrue(button.is_visible())
+
+
+if __name__ == '__main__':
+    unittest.main()
