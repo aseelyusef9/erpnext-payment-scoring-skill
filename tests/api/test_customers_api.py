@@ -15,7 +15,6 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 from app.main import app
 
-
 class TestCustomerAPI(unittest.TestCase):
     """Test cases for customer API endpoints."""
     
