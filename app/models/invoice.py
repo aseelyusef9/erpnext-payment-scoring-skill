@@ -33,5 +33,10 @@ class Invoice(BaseModel):
         return 0
     
     def is_paid(self) -> bool:
-        """Check if invoice is fully paid."""
+        """Check if invoice is fully paid.
+        
+        An invoice is considered paid if:
+        1. Status is explicitly "Paid", OR
+        2. Outstanding amount is 0 (fully allocated/paid)
+        """
         return self.status == "Paid" or self.outstanding_amount == 0

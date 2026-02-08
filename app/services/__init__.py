@@ -1,7 +1,6 @@
 """
 Business logic services for the Payment Scoring Skill application.
 """
-from app.services.scoring import ScoringService
-from app.services.insights import InsightsService
+from app.services.payment_ai_analyzer import PaymentAIAnalyzer
 
-__all__ = ["ScoringService", "InsightsService"]
+__all__ = ["PaymentAIAnalyzer"]

@@ -1,0 +1,9 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\USER\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.9', 'Platform': 'Windows-11-10.0.26200-SP0', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'allure-pytest': '2.15.3', 'anyio': '4.12.1', 'base-url': '2.1.0', 'cov': '7.0.0', 'html': '4.1.1', 'metadata': '3.1.1', 'playwright': '0.7.2'}, 'Base URL': ''}
+rootdir: C:\Users\USER\erpnext-payment-scoring-skill
+plugins: allure-pytest-2.15.3, anyio-4.12.1, base-url-2.1.0, cov-7.0.0, html-4.1.1, metadata-3.1.1, playwright-0.7.2
+collecting ... collected 2 items
+
+tests/ui_testing/e2e/test_manager_high_risk_flow.py::TestManagerHighRiskFlowWithFixtures::test_manager_reviews_high_risk_customers 

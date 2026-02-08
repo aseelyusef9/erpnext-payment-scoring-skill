@@ -76,7 +76,7 @@ function displayCustomers(customers) {
             </td>
             <td>
                 <div class="score-display">
-                    <span class="score-number" style="color: ${getScoreColor(customer.score)}">${customer.score.toFixed(1)}</span>
+                    <span class="score-number" style="color: ${getScoreColor(customer.risk_level)}">${customer.score.toFixed(1)}</span>
                     <div class="score-bar">
                         <div class="score-fill ${getRiskClass(customer.risk_level)}" style="width: ${customer.score}%"></div>
                     </div>
@@ -96,27 +96,66 @@ function displayCustomers(customers) {
 }
 
 // Filter customers
-function filterCustomers(filter) {
+function filterCustomers(filter, event) {
     currentFilter = filter;
     
     // Update active tab
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
     
-    // Filter data
+    console.log('Filtering by:', filter, 'Total customers:', allCustomers.length);
+    
+    // Filter client-side from already loaded data
     let filtered = allCustomers;
     if (filter !== 'all') {
         filtered = allCustomers.filter(c => c.risk_level === filter);
     }
     
+    console.log('Filtered customers:', filtered.length);
     displayCustomers(filtered);
+}
+
+// Load high-risk customers from dedicated endpoint
+async function loadHighRiskCustomers() {
+    const tbody = document.getElementById('customersTableBody');
+    
+    // Show loading state
+    tbody.innerHTML = `
+        <tr><td colspan="7" class="loading-cell">
+            <div class="loading-spinner"></div>
+            <span>Loading high-risk customers...</span>
+        </td></tr>
+    `;
+    
+    try {
+        const response = await fetch(`${API_BASE}/customers/high-risk`);
+        if (!response.ok) throw new Error('Failed to fetch high-risk customers');
+        
+        const highRiskCustomers = await response.json();
+        console.log('High-risk customers loaded:', highRiskCustomers.length);
+        displayCustomers(highRiskCustomers);
+    } catch (error) {
+        console.error('Error loading high-risk customers:', error);
+        // Fallback to client-side filtering
+        const filtered = allCustomers.filter(c => c.risk_level === 'high');
+        console.log('Fallback to client-side filtering:', filtered.length);
+        displayCustomers(filtered);
+    }
 }
 
 // Search customers
 function searchCustomers() {
     const query = document.getElementById('searchInput').value.toLowerCase();
+    
+    // If currently on high-risk filter and no search query, just reload the high-risk customers
+    if (currentFilter === 'high' && !query) {
+        loadHighRiskCustomers();
+        return;
+    }
     
     let filtered = currentFilter === 'all' 
         ? allCustomers 
@@ -189,13 +228,16 @@ async function showCustomerDetails(customerId) {
     const modalBody = document.getElementById('modalBody');
     
     modal.classList.add('active');
-    modalBody.innerHTML = '<div class="loading-spinner"></div>';
+    
+    // Find customer in already loaded data
+    const customer = allCustomers.find(c => c.customer_id === customerId);
+    
+    if (!customer) {
+        modalBody.innerHTML = '<div class="error-message">Customer not found</div>';
+        return;
+    }
     
     try {
-        const response = await fetch(`${API_BASE}/customers/${customerId}/score`);
-        if (!response.ok) throw new Error('Failed to fetch customer details');
-        
-        const customer = await response.json();
         
         document.getElementById('modalCustomerName').textContent = customer.customer_name;
         
@@ -203,7 +245,7 @@ async function showCustomerDetails(customerId) {
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
                 <div class="detail-section">
                     <div class="detail-label">Payment Score</div>
-                    <div class="detail-value" style="font-size: 36px; font-weight: 700; color: ${getScoreColor(customer.score)}">
+                    <div class="detail-value" style="font-size: 36px; font-weight: 700; color: ${getScoreColor(customer.risk_level)}">
                         ${customer.score.toFixed(1)}
                     </div>
                 </div>
@@ -224,11 +266,11 @@ async function showCustomerDetails(customerId) {
                 </div>
                 <div class="detail-section">
                     <div class="detail-label">Payment Reliability</div>
-                    <div class="detail-value">${customer.payment_reliability.toFixed(1)}%</div>
+                    <div class="detail-value">${Math.round(customer.payment_reliability)}%</div>
                 </div>
                 <div class="detail-section">
                     <div class="detail-label">Avg Payment Delay</div>
-                    <div class="detail-value">${customer.avg_payment_delay.toFixed(1)} days</div>
+                    <div class="detail-value">${Math.round(customer.avg_payment_delay)} days</div>
                 </div>
                 <div class="detail-section">
                     <div class="detail-label">Overdue Invoices</div>
@@ -288,9 +330,9 @@ function getRiskClass(riskLevel) {
     return riskLevel === 'low' ? 'low' : riskLevel === 'medium' ? 'medium' : 'high';
 }
 
-function getScoreColor(score) {
-    if (score >= 80) return 'var(--success-color)';
-    if (score >= 50) return 'var(--warning-color)';
+function getScoreColor(riskLevel) {
+    if (riskLevel === 'low') return 'var(--success-color)';
+    if (riskLevel === 'medium') return 'var(--warning-color)';
     return 'var(--danger-color)';
 }
 

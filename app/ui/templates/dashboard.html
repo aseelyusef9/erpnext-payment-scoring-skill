@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Scoring - ERPNext</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -91,10 +91,10 @@
         <div class="card">
             <div class="card-header">
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="filterCustomers('all')">All Customers</button>
-                    <button class="tab-btn" onclick="filterCustomers('high')">High Risk</button>
-                    <button class="tab-btn" onclick="filterCustomers('medium')">Medium Risk</button>
-                    <button class="tab-btn" onclick="filterCustomers('low')">Low Risk</button>
+                    <button class="tab-btn active" onclick="filterCustomers('all', event)">All Customers</button>
+                    <button class="tab-btn" onclick="filterCustomers('high', event)">High Risk</button>
+                    <button class="tab-btn" onclick="filterCustomers('medium', event)">Medium Risk</button>
+                    <button class="tab-btn" onclick="filterCustomers('low', event)">Low Risk</button>
                 </div>
                 <div class="card-actions">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search customers..." onkeyup="searchCustomers()">
@@ -162,6 +162,6 @@
         </div>
     </div>
 
-    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/dashboard.js?v=7"></script>
 </body>
 </html>

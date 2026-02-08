@@ -1,0 +1,94 @@
+# .github/workflows/ui-testing.yaml
+name: Playwright UI Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write  # Required for deploying Allure report to GitHub Pages
+
+jobs:
+  playwright-e2e-tests:
+    runs-on: ubuntu-latest
+    environment: test
+    
+    strategy:
+      max-parallel: 1  # Run tests one at a time to avoid overwhelming local server
+      matrix:
+        browser: [chromium]  # Test only Chromium browser
+        resolution: 
+          - { name: 'desktop', width: 1920, height: 1080 }
+      fail-fast: false  # Continue other jobs even if one fails
+    
+    name: Test ${{ matrix.browser }} - ${{ matrix.resolution.name }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install fastapi uvicorn[standard] pydantic pydantic-settings
+        pip install requests anthropic httpx python-dotenv
+        pip install pytest pytest-cov playwright allure-pytest
+        
+    - name: Install Playwright browsers
+      run: |
+        playwright install --with-deps ${{ matrix.browser }}
+        
+    - name: Run E2E tests against ngrok URL
+      env:
+        HEADLESS: true
+        BROWSER: ${{ matrix.browser }}
+        SCREEN_WIDTH: ${{ matrix.resolution.width }}
+        SCREEN_HEIGHT: ${{ matrix.resolution.height }}
+        CI: true
+        UI_BASE_URL: https://yolande-phalangeal-kristan.ngrok-free.dev
+        UI_SKIP_SERVER: "true"
+        UI_FORCE_AI: "true"
+        UI_SLOW_MO_MS: "0"
+        PYTHONPATH: ${{ github.workspace }}
+        # API keys needed only for test framework initialization
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        ERPNEXT_API_KEY: ${{ secrets.ERPNEXT_API_KEY }}
+        ERPNEXT_API_SECRET: ${{ secrets.ERPNEXT_API_SECRET }}
+      run: |
+        pytest tests/ui_testing/e2e/ -v --tb=short --alluredir=allure-results
+      continue-on-error: false
+    
+    - name: Generate Allure Report
+      if: always()
+      uses: simple-elf/allure-report-action@master
+      with:
+        allure_results: allure-results
+        allure_report: allure-report
+        gh_pages: gh-pages
+        allure_history: allure-history
+    
+    - name: Deploy Allure Report to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: allure-history
+        destination_dir: ui-tests
+        
+    - name: Test summary
+      if: always()
+      run: |
+        echo "✅ E2E tests completed for ${{ matrix.browser }} - ${{ matrix.resolution.name }}"
+        echo "📊 Allure report available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ui-tests"
