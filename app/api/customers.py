@@ -218,8 +218,8 @@ async def get_high_risk_customers(limit: int = Query(default=100, ge=1, le=500))
                 # 🤖 AI-driven risk assessment
                 score = ai_analyzer.analyze_customer(customer, invoices)
                 
-                # Only include high risk customers (score < 50)
-                if score.score < 50:
+                # Only include high risk customers (risk_level = "high")
+                if score.risk_level == "high":
                     high_risk_scores.append(score)
             except Exception as e:
                 continue
