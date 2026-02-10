@@ -1,0 +1,27 @@
+
+[WARNING] ERPNext credentials not fully configured in .env
+  ERPNEXT_URL: NOT SET
+  ERPNEXT_API_KEY: SET
+  ERPNEXT_API_SECRET: SET
+[OK] Claude AI credentials loaded successfully
+[INFO] Using REAL data for tests
+[OK] External server is healthy
+[OK] UI-specific configuration loaded
+[DEBUG] Initial rows in table: 1
+[DEBUG] Rows after filter: 15
+[DEBUG] Table HTML length: 13760
+[DEBUG] Table HTML (truncated):
+
+        <tr>
+            <td>
+                <div style="font-weight: 600;">Grant Plastics Ltd.</div>
+                <div style="font-size: 12px; color: var(--gray-500);">Grant Plastics Ltd.</div>
+            </td>
+            <td>
+                <div class="score-display">
+                    <span class="score-number" style="color: var(--danger-color)">28.0</span>
+                    <div class="score-bar">
+                        <div class="score-fill high" style="width: 28%"></div>
+    ...
+[SUCCESS] Customer details loaded: Grant Plastics Ltd.
+[OK] AI Insights found: Grant Plastics Ltd. shows concerning payment behavior with only 25% payment reliability and just 1 o...

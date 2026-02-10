@@ -1,0 +1,10 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"
+Test that a manager can view and filter high-risk customers.
+
+This test:
+1. Opens the dashboard
+2. Filters for high-risk customers
+3. Opens the first customer's details
+4. Verifies the modal displays correctly
+","256161","test_manager_reviews_high_risk_customers","tests.ui_testing.e2e","Tue Feb 10 08:26:34 UTC 2026","passed","Tue Feb 10 08:30:50 UTC 2026","TestManagerHighRiskFlowWithFixtures","test_manager_high_risk_flow","",""
